@@ -1,7 +1,7 @@
 'use client'
 import Image from "next/image";
 import{useState, useEffect} from 'react'
-import { collection, Firestore, getDocs } from "firebase/firestore";
+import { collection, query, getDoc, setDoc } from "firebase/firestore";
 import {Box, Typography, Modal, Stack, TextField, Button} from '@mui/material'
 import { firestore } from "./firebase";
 // import Button from '@mui/material/Button'
@@ -13,7 +13,7 @@ export default function Home() {
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, 'inventory'))
-    const docs = await getDocs(snapshot)
+    const docs = await getDoc(snapshot)
     const inventoryList = []
     docs.forEach((doc)=>{
       inventoryList.push({
@@ -26,7 +26,7 @@ export default function Home() {
 
   const addItem = async () => {
     const docRef = doc(collection(firestore, 'inventory'), item)
-    const docSnap = await getDocs(docRef)
+    const docSnap = await getDoc(docRef)
 
     if (docSnap.exists()) {
       const {quantity} = docSnap.data()
@@ -66,6 +66,7 @@ export default function Home() {
     width="100vw" 
     height="100vh" 
     display="flex"
+    flexDirection="column"
     justifyContent="center"
     alignItems="center"
     gap={2}
@@ -109,7 +110,50 @@ export default function Home() {
         </Stack>
         </Box>
       </Modal>
-      <Typography variant = "h1">Inventory Management</Typography>
+      <Button
+        variant="contained"
+        onClick={()=>{
+          handleOpen()
+        }}
+      >
+        Add New Item
+      </Button>
+      <Box border="1px solid #333">
+        <Box width="800px" 
+        height="100px" 
+        bgcolor="#ADD8E6" 
+        justifyContent="center"
+        alignItems="center"
+        display="flex">
+          <Typography variant="h2" color="#333">
+            Inventory Items
+          </Typography>
+        </Box>
+      <Stack width="800px" height="300px" spacing={2} overflow="auto">
+          {inventory.map(({name, quantity})=>(
+            <Box key={name} width="100%" 
+            minHeight="150px"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            bgcolor="#f0f0f0"
+            padding={5}
+            >
+              <Typography variant="h3" color="#333" textAlign="center">
+                {name.charAt(0).toUpperCase() + name.slice(1)}
+              </Typography>
+              <Typography variant="h3" color="#333" textAlign="center">
+                {quantity}
+              </Typography>
+              <Button variant="contained" onClick={()=>{
+                removeItem(name)
+              }}>
+                Remove
+              </Button>
+            </Box>
+          ))}
+      </Stack>
+    </Box>
     </Box>
   ) 
 }
