@@ -13,7 +13,7 @@ export default function Home() {
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, 'inventory'))
-    const docs = await getDoc(snapshot)
+    const docs = await getDocs(snapshot)
     const inventoryList = []
     docs.forEach((doc)=>{
       inventoryList.push({
@@ -24,7 +24,7 @@ export default function Home() {
     setInventory(inventoryList)
   }
 
-  const addItem = async () => {
+  const addItem = async (item) => {
     const docRef = doc(collection(firestore, 'inventory'), item)
     const docSnap = await getDoc(docRef)
 
@@ -39,9 +39,9 @@ export default function Home() {
     await updateInventory()
   }
 
-  const removeItem = async () => {
+  const removeItem = async (item) => {
     const docRef = doc(collection(firestore, 'inventory'), item)
-    const docSnap = await getDocs(docRef)
+    const docSnap = await getDoc(docRef)
 
     if (docSnap.exists()) {
       const {quantity} = docSnap.data()
@@ -145,11 +145,18 @@ export default function Home() {
               <Typography variant="h3" color="#333" textAlign="center">
                 {quantity}
               </Typography>
-              <Button variant="contained" onClick={()=>{
-                removeItem(name)
-              }}>
-                Remove
-              </Button>
+              <Stack direction="row" spacing={2}>
+                <Button variant="contained" onClick={()=>{
+                  addItem(name)
+                }}>
+                  Add
+                </Button>
+                <Button variant="contained" onClick={()=>{
+                  removeItem(name)
+                }}>
+                  Remove
+                </Button>
+              </Stack>
             </Box>
           ))}
       </Stack>
